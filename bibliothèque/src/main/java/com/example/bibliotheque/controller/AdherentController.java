@@ -3,6 +3,7 @@ package com.example.bibliotheque.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -132,13 +133,16 @@ public class AdherentController {
 
     private final EmpruntService empruntService;
  
-    @PostMapping("/adherent/rendre-livre/{id}")
-    public String rendreLivre(@PathVariable Integer id, HttpSession session) {
-        Adherent adherent = (Adherent) session.getAttribute("adherent");
-        if (adherent == null) return "redirect:/login-adherent";
+@PostMapping("/adherent/rendre-livre/{id}")
+public String rendreLivre(@PathVariable Integer id,
+                          @RequestParam("dateRetourEffective") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateRetourEffective,
+                          HttpSession session,
+                          RedirectAttributes redirectAttributes) {
+    Adherent adherent = (Adherent) session.getAttribute("adherent");
+    if (adherent == null) return "redirect:/login-adherent";
 
-        empruntService.rendreLivre(id, adherent);
-        return "redirect:/dashboard-adherent";
-    }
+    empruntService.rendreLivre(id, adherent, dateRetourEffective); // tu dois modifier ce service aussi
+    return "redirect:/dashboard-adherent";
+}
 
 }
