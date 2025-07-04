@@ -22,23 +22,25 @@ public class EmpruntService {
         return empruntRepository.findByAdherent_IdAndRenduFalse(adherent.getId());
     }
 
-    public void rendreLivre(Integer empruntId, Adherent adherent) {
-        Emprunt emprunt = empruntRepository.findById(empruntId)
-                .orElseThrow(() -> new RuntimeException("Emprunt introuvable"));
+  public void rendreLivre(Integer empruntId, Adherent adherent, LocalDate dateRetourEffective) {
+    Emprunt emprunt = empruntRepository.findById(empruntId)
+        .orElseThrow(() -> new RuntimeException("Emprunt introuvable"));
 
-        if (!emprunt.getAdherent().getId().equals(adherent.getId())) {
-            throw new RuntimeException("Cet emprunt ne vous appartient pas.");
-        }
-
-        emprunt.setRendu(true);
-        emprunt.setDateRetourEffective(LocalDate.now());
-
-        if (emprunt.getDateRetourPrevue().isBefore(LocalDate.now())) {
-            adherent.setStatut(Adherent.Statut.bloque);
-            adherent.setDateDeblocage(LocalDate.now().plusDays(10));
-            adherentRepository.save(adherent);
-        }
-
-        empruntRepository.save(emprunt);
+    if (!emprunt.getAdherent().getId().equals(adherent.getId())) {
+        throw new RuntimeException("Cet emprunt ne vous appartient pas.");
     }
+
+    emprunt.setRendu(true);
+    emprunt.setDateRetourEffective(dateRetourEffective);
+
+    if (emprunt.getDateRetourPrevue().isBefore(dateRetourEffective)) {
+        adherent.setStatut(Adherent.Statut.bloque);
+        adherent.setDateDeblocage(dateRetourEffective.plusDays(10));
+        adherentRepository.save(adherent);
+    }
+
+    empruntRepository.save(emprunt);
+}
+
+
 }
