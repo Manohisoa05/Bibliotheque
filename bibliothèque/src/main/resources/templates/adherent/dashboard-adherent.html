@@ -46,6 +46,14 @@
       padding: 1rem 0;
       margin-top: 3rem;
     }
+
+    /* Style message erreur */
+    .error-message {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 0.25rem;
+      display: none;
+    }
   </style>
 </head>
 
@@ -96,8 +104,9 @@
                   <td th:text="${#temporals.format(emprunt.dateEmprunt, 'dd/MM/yyyy')}">Date emprunt</td>
                   <td th:text="${#temporals.format(emprunt.dateRetourPrevue, 'dd/MM/yyyy')}">Date prévue</td>
                   <td>
-                    <form th:action="@{'/adherent/rendre-livre/' + ${emprunt.id}}" method="post" class="d-flex">
-                      <input type="date" name="dateRetourEffective" class="form-control form-control-sm me-2" required />
+                    <form th:action="@{'/adherent/rendre-livre/' + ${emprunt.id}}" method="post" class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+                      <input type="date" name="dateRetourEffective" class="form-control form-control-sm" required />
+                      <div class="error-message">La date choisie est un jour férié, veuillez choisir un autre jour.</div>
                   </td>
                   <td>
                       <button type="submit" class="btn btn-sm btn-outline-success">Rendre</button>
@@ -150,5 +159,48 @@
 
   <!-- JS Bootstrap -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Validation jours fériés sur dateRetourEffective -->
+  <script>
+    // Exemple liste jours fériés au format ISO (à adapter)
+    const joursFeries = [
+      "2025-01-01",
+      "2025-04-18",
+      "2025-05-01",
+      "2025-05-08",
+      "2025-07-14",
+      "2025-08-15",
+      "2025-11-01",
+      "2025-11-11",
+      "2025-12-25"
+    ];
+
+    function estJourFerie(dateStr) {
+      return joursFeries.includes(dateStr);
+    }
+
+    document.querySelectorAll('form[action^="/adherent/rendre-livre/"]').forEach(form => {
+      form.addEventListener('submit', function(event) {
+        const inputDate = form.querySelector('input[name="dateRetourEffective"]');
+        const errorMsg = form.querySelector('.error-message');
+
+        errorMsg.style.display = 'none';
+
+        if (!inputDate.value) {
+          errorMsg.textContent = "Veuillez sélectionner une date de retour.";
+          errorMsg.style.display = 'block';
+          event.preventDefault();
+          return;
+        }
+
+        if (estJourFerie(inputDate.value)) {
+          errorMsg.textContent = "La date choisie est un jour férié, veuillez choisir un autre jour.";
+          errorMsg.style.display = 'block';
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
+
 </body>
 </html>
