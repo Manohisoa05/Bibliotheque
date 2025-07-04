@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Admin – Bibliothèque</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+  <style>
+    :root {
+      --main-color: #004b88;
+      --accent-color: #f9ac00;
+    }
+    body {
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f5f7fa;
+    }
+    .navbar {
+      background-color: var(--main-color);
+    }
+    .navbar .nav-link,
+    .navbar .navbar-brand {
+      color: #fff !important;
+    }
+    footer {
+      background-color: var(--main-color);
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar admin -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container position-relative">
+      <a class="navbar-brand" href="#">Bibliothèque</a>
+
+      <!-- Texte centré -->
+      <div class="position-absolute top-50 start-50 translate-middle">
+        <span class="nav-link text-white fw-semibold"><h2>Bienvenue, admin</h2></span>
+      </div>
+
+      <!-- Lien déconnexion aligné à droite -->
+      <div class="collapse navbar-collapse justify-content-end">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/logout">Déconnexion</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h2 class="mb-4 text-center">Tableau de bord administrateur</h2>
+
+    <!-- Messages de succès et d'erreur -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      <span th:text="${success}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- Validation des demandes (emprunts, réservations, etc.) -->
+      <div class="col-md-6">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            Validation des demandes
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Adhérent</th>
+                  <th>Livre</th>
+                  <th>Type</th>
+                  <th>Date demande</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="demande : ${demandes}" th:if="${demandes != null && !demandes.isEmpty()}">
+                  <td th:text="${demande.adherent.nom + ' ' + demande.adherent.prenom}"></td>
+                  <td th:text="${demande.livre.titre}"></td>
+                  <td>
+                    <span class="badge bg-info" th:text="${demande.typeAction}"></span>
+                  </td>
+                  <td th:text="${demande.dateDemande}"></td>
+                  <td>
+                    <form th:action="@{/admin/traiter-demande}" method="post" style="display: inline;">
+                      <input type="hidden" name="demandeId" th:value="${demande.id}">
+                      <input type="hidden" name="statut" value="ACCEPTEE">
+                      <button type="submit" class="btn btn-success btn-sm">Valider</button>
+                    </form>
+                    <button type="button" class="btn btn-danger btn-sm" 
+                            data-bs-toggle="modal" th:data-bs-target="'#refuserModal' + ${demande.id}">
+                      Refuser
+                    </button>
+                    
+                    <!-- Modal pour refuser avec commentaire -->
+                    <div class="modal fade" th:id="'refuserModal' + ${demande.id}">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <form th:action="@{/admin/traiter-demande}" method="post">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Refuser la demande</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                              <input type="hidden" name="demandeId" th:value="${demande.id}">
+                              <input type="hidden" name="statut" value="REFUSEE">
+                              <div class="mb-3">
+                                <label class="form-label">Raison du refus :</label>
+                                <textarea name="commentaire" class="form-control" rows="3"></textarea>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                              <button type="submit" class="btn btn-danger">Refuser</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${demandes == null || demandes.isEmpty()}">
+                  <td colspan="5" class="text-center text-muted">Aucune demande en attente</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gestion des livres -->
+      <div class="col-md-6">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            Gestion des livres
+          </div>
+          <div class="card-body">
+            <a href="/admin/livres/ajouter" class="btn btn-primary mb-3">
+              <i class="bi bi-plus-lg"></i> Ajouter un livre
+            </a>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="livre : ${livres}" th:if="${livres != null && !livres.isEmpty()}">
+                    <td th:text="${livre.titre}"></td>
+                    <td th:text="${livre.auteur}"></td>
+                    <td>
+                      <span th:class="${livre.statut.name() == 'DISPONIBLE' ? 'badge bg-success' : 'badge bg-danger'}" 
+                            th:text="${livre.statut}"></span>
+                    </td>
+                    <td>
+                      <a th:href="@{'/admin/livres/modifier/' + ${livre.id}}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil-square"></i> Modifier
+                      </a>
+                      <button type="button" class="btn btn-sm btn-danger" 
+                              data-bs-toggle="modal" th:data-bs-target="'#supprimerModal' + ${livre.id}">
+                        <i class="bi bi-trash"></i> Supprimer
+                      </button>
+                      
+                      <!-- Modal de confirmation de suppression -->
+                      <div class="modal fade" th:id="'supprimerModal' + ${livre.id}">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Confirmer la suppression</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                              <p>Êtes-vous sûr de vouloir supprimer le livre :</p>
+                              <strong th:text="${livre.titre + ' - ' + livre.auteur}"></strong>
+                              <p class="text-danger mt-2">Cette action est irréversible.</p>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                              <form th:action="@{'/admin/livres/supprimer/' + ${livre.id}}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr th:if="${livres == null || livres.isEmpty()}">
+                    <td colspan="4" class="text-center text-muted">Aucun livre disponible</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gestion des adhérents -->
+      <div class="col-md-12">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            Gestion des adhérents
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Prénom</th>
+                  <th>Email</th>
+                  <th>Statut</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="adherent : ${adherents}" th:if="${adherents != null && !adherents.isEmpty()}">
+                  <td th:text="${adherent.nom}"></td>
+                  <td th:text="${adherent.prenom}"></td>
+                  <td th:text="${adherent.email}"></td>
+                  <td>
+                    <span th:class="${adherent.statut.name() == 'actif' ? 'badge bg-success' : 'badge bg-danger'}" 
+                          th:text="${adherent.statut}"></span>
+                  </td>
+                  <td>
+                    <button th:if="${adherent.statut.name() == 'actif'}" class="btn btn-danger btn-sm">Bloquer</button>
+                    <button th:if="${adherent.statut.name() == 'bloque'}" class="btn btn-success btn-sm">Débloquer</button>
+                  </td>
+                </tr>
+                <tr th:if="${adherents == null || adherents.isEmpty()}">
+                  <td colspan="5" class="text-center text-muted">Aucun adhérent enregistré</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p class="mb-0">&copy; 2025 Bibliothèque – Tous droits réservés</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
