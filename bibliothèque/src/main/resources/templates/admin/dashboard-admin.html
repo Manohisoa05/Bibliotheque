@@ -3,40 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard Admin – Bibliothèque</title>
+  <title>Dashboard Admin – Bibliothèque Gothique</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=EB+Garamond&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet"/>
 
   <style>
     :root {
-      --main-color: #004b88;
-      --accent-color: #f9ac00;
+      --main-color: #0b0b0b;
+      --accent-color: #d4af37;
+      --text-color: #f0f0f0;
+      --muted-color: #999;
+      --border-color: #444;
     }
+
     body {
-      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: #f5f7fa;
-    }
-    .navbar {
       background-color: var(--main-color);
+      color: var(--text-color);
+      font-family: 'EB Garamond', serif;
     }
+
+    h2, h5, .navbar-brand {
+      font-family: 'Cinzel Decorative', serif;
+      letter-spacing: 1px;
+    }
+
+    .navbar {
+      background-color: #111;
+      border-bottom: 2px solid var(--accent-color);
+    }
+
     .navbar .nav-link,
     .navbar .navbar-brand {
+      color: var(--accent-color) !important;
+    }
+
+    .navbar .nav-link:hover {
       color: #fff !important;
     }
+
+    .card {
+      background-color: #1a1a1a;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+    }
+
+    .card-header {
+      background-color: #222;
+      border-bottom: 1px solid var(--border-color);
+      font-family: 'Cinzel Decorative', serif;
+      color: var(--accent-color);
+      font-size: 1.1rem;
+    }
+
+    .badge {
+      font-family: 'EB Garamond', serif;
+    }
+
+    .table {
+      color: var(--text-color);
+    }
+
+    .table th,
+    .table td {
+      vertical-align: middle;
+      border-color: var(--border-color);
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+      background-color: #121212;
+    }
+
+    .btn {
+      font-family: 'EB Garamond', serif;
+      border-radius: 0;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: #000;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #bfa52a;
+    }
+
+    .btn-outline-primary {
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--accent-color);
+      color: #000;
+    }
+
+    .btn-danger {
+      background-color: #661111;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background-color: #990000;
+    }
+
+    .btn-success {
+      background-color: #225522;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #449944;
+    }
+
     footer {
-      background-color: var(--main-color);
-      color: #fff;
+      background-color: #111;
+      color: var(--accent-color);
       text-align: center;
       padding: 1rem 0;
       margin-top: 3rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .modal-content {
+      background-color: #1c1c1c;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .alert-success {
+      background-color: #163a16;
+      border-color: #2f6b2f;
+    }
+
+    .alert-danger {
+      background-color: #3a1616;
+      border-color: #6b2f2f;
     }
   </style>
 </head>
 <body>
 
-  <!-- Navbar admin -->
+    <!-- Navbar admin -->
   <nav class="navbar navbar-expand-lg">
     <div class="container position-relative">
       <a class="navbar-brand" href="#">Bibliothèque</a>
@@ -267,5 +380,8 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- NAVBAR ET LE RESTE ICI -->
+<!-- Copie le reste de ton contenu HTML tel quel -->
+
 </body>
 </html>
