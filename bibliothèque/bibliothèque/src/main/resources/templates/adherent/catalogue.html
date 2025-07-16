@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catalogue – Bibliothèque Obscura</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=EB+Garamond&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --main-bg: #000000;
+            --card-bg: #111111;
+            --text-color: #f0f0f0;
+            --accent-color: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--main-bg);
+            color: var(--text-color);
+            font-family: 'EB Garamond', serif;
+        }
+
+        .navbar {
+            background-color: var(--main-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navbar .navbar-brand {
+            font-family: 'UnifrakturCook', cursive;
+            font-size: 1.8rem;
+            color: var(--accent-color) !important;
+        }
+
+        .nav-link {
+            color: var(--text-color) !important;
+        }
+
+        h2 {
+            font-family: 'UnifrakturCook', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .card-header {
+            background-color: #1a1a1a;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .table {
+            color: var(--text-color);
+        }
+
+        .table-dark th {
+            background-color: #1a1a1a;
+            color: var(--accent-color);
+        }
+
+        .badge {
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            background-color: #222;
+            border: 1px solid #444;
+            color: #eee;
+        }
+
+        .btn {
+            font-family: 'EB Garamond', serif;
+            font-weight: bold;
+        }
+
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            background-color: #111;
+            color: #aaa;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        a.text-decoration-none {
+            color: #ccc;
+        }
+
+        a.text-decoration-none:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Navigation ===== -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">Obscura</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/}">Accueil</a></li>
+                    <li class="nav-item" th:if="${session.adherent}"><a class="nav-link" th:href="@{/dashboard-adherent}">Mon espace</a></li>
+                    <li class="nav-item" th:if="${session.adherent}"><a class="nav-link" th:href="@{/mes-demandes}">Mes demandes</a></li>
+                    <li class="nav-item" th:if="${session.adherent}"><a class="nav-link" th:href="@{/adherent/logout}">Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== Catalogue ===== -->
+    <div class="container py-5">
+        <h2>Catalogue des livres</h2>
+
+        <!-- Messages -->
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Votre demande a été envoyée avec succès.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${param.error}">Erreur inconnue</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header"><i class="bi bi-book me-2"></i>Liste des livres</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Titre</th>
+                            <th>Auteur</th>
+                            <th>Éditeur</th>
+                            <th>Année</th>
+                            <th>ISBN</th>
+                            <th>Statut</th>
+                            <th>Âge requis</th>
+                            <th>Exemplaires</th>
+                            <th th:if="${session.adherent}">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="livre : ${livres}">
+                            <td th:text="${livre.titre}"></td>
+                            <td th:text="${livre.auteur}"></td>
+                            <td th:text="${livre.editeur}"></td>
+                            <td th:text="${livre.anneeParution}"></td>
+                            <td th:text="${livre.isbn}"></td>
+                            <td>
+                                <span th:switch="${livre.statut.name()}" class="badge">
+                                    <span th:case="'DISPONIBLE'" class="badge bg-success">Disponible</span>
+                                    <span th:case="'EMPRUNTE'" class="badge bg-danger">Emprunté</span>
+                                    <span th:case="'RESERVE'" class="badge bg-warning text-dark">Réservé</span>
+                                    <span th:case="'LECTURE_SUR_PLACE'" class="badge bg-info text-dark">Sur place</span>
+                                </span>
+                            </td>
+                            <td th:text="${livre.restrictionAge} + ' ans'"></td>
+                            <td th:text="${livre.nbExemplaires}"></td>
+                            <td th:if="${session.adherent}">
+                                <div th:if="${livre.statut.name() == 'DISPONIBLE'}" class="btn-group-vertical d-grid gap-1">
+                                   
+                                          
+                    <form th:action="@{/demande-action}" method="post" class="d-grid gap-2 mb-2">
+  <input type="hidden" name="livreId" th:value="${livre.id}" />
+  <input type="hidden" name="typeAction" value="EMPRUNT" />
+  <label for="dateEmprunt" class="form-label mb-1">Date d'emprunt souhaitée</label>
+  <input type="date" name="dateEmprunt" class="form-control form-control-sm mb-2" required />
+  <button type="submit" class="btn btn-outline-light btn-sm">
+    <i class="bi bi-book"></i> Emprunter
+  </button>
+</form>
+
+
+                                          
+                                    <form th:action="@{/demande-action}" method="post">
+                                        <input type="hidden" name="livreId" th:value="${livre.id}">
+                                        <input type="hidden" name="typeAction" value="RESERVATION">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm text-dark">
+                                            <i class="bi bi-bookmark"></i> Réserver
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/demande-action}" method="post">
+                                        <input type="hidden" name="livreId" th:value="${livre.id}">
+                                        <input type="hidden" name="typeAction" value="LECTURE_SUR_PLACE">
+                                        <button type="submit" class="btn btn-outline-info btn-sm text-dark">
+                                            <i class="bi bi-eye"></i> Lire sur place
+                                        </button>
+                                    </form>
+                                </div>
+                                <span th:if="${livre.statut.name() != 'DISPONIBLE'}" class="text-muted">
+                                    <i class="bi bi-x-circle"></i> Non disponible
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div th:if="${livres.isEmpty()}" class="p-3 text-center">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Aucun livre disponible.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${session.adherent}" class="mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-info-circle me-2"></i>Informations</h5>
+                    <ul>
+                        <li>Les demandes sont validées par un administrateur</li>
+                        <li>Vous serez notifié une fois traité</li>
+                        <li>Consultez <a th:href="@{/mes-demandes}" class="text-decoration-none">vos demandes</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Bibliothèque Obscura</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Espace Adhérent – Bibliothèque</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Google Fonts - Gothique -->
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet"/>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+
+  <style>
+    :root {
+      --main-color: #000000;
+      --accent-color: #ffffff;
+    }
+
+    body {
+      font-family: 'UnifrakturCook', cursive;
+      background-color: #f5f7fa;
+    }
+
+    .navbar {
+      background-color: var(--main-color);
+    }
+
+    .navbar .nav-link,
+    .navbar .navbar-brand {
+      color: #fff !important;
+    }
+
+    .card-header {
+      background-color: var(--main-color);
+      color: #fff;
+    }
+
+    footer {
+      background-color: var(--main-color);
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0;
+      margin-top: 3rem;
+    }
+
+    /* Style message erreur */
+    .error-message {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 0.25rem;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== Navbar Adhérent ===== -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container position-relative">
+      <a class="navbar-brand" href="#">Bibliothèque</a>
+      <div class="position-absolute top-50 start-50 translate-middle">
+        <span class="nav-link text-white fw-semibold"><h2>Bienvenue</h2></span>
+      </div>
+      <div class="collapse navbar-collapse justify-content-end">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/adherent/logout">Déconnexion</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Contenu principal ===== -->
+  <div class="container py-5">
+    <h2 class="mb-4 text-center">Mon espace personnel</h2>
+
+    <div class="row g-4">
+      <!-- Emprunts en cours -->
+      <div class="col-md-8">
+        <div class="card shadow">
+          <div class="card-header">
+            Mes emprunts en cours
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Livre</th>
+                  <th>Date emprunt</th>
+                  <th>Date retour prévue</th>
+                  <th>Date de rendu</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="emprunt : ${emprunts}">
+                  <td th:text="${emprunt.livre.titre}">Titre</td>
+                  <td th:text="${#temporals.format(emprunt.dateEmprunt, 'MM/dd/yyyy')}">Date emprunt</td>
+                  <td th:text="${#temporals.format(emprunt.dateRetourPrevue, 'MM/dd/yyyy')}">Date prévue</td>
+                  <td>
+                    <form th:action="@{'/adherent/rendre-livre/' + ${emprunt.id}}" method="post" class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+                      <input type="date" name="dateRetourEffective" class="form-control form-control-sm" required />
+                      <div class="error-message">Veuillez choisir un autre jour, la Bibliothèque est fermée.</div>
+
+                      <form th:action="@{'/adherent/demande-prolongement/' + ${emprunt.id}}" method="post">
+  <button type="submit" class="btn btn-sm btn-outline-warning mt-1">Demander prolongement</button>
+</form>
+
+                  </td>
+                  <td>
+                      <button type="submit" class="btn btn-sm btn-outline-success">Rendre</button>
+                    </form>
+                  </td>
+                </tr>
+                <tr th:if="${emprunts == null or #lists.isEmpty(emprunts)}">
+                  <td colspan="5" class="text-center text-muted">Aucun emprunt en cours</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <div class="col-md-4">
+        <div class="card shadow mb-4">
+          <div class="card-body text-center">
+            <i class="bi bi-search fs-1 text-primary"></i>
+            <h5 class="mt-3">Rechercher un livre</h5>
+            <p>Consulte le catalogue complet en ligne</p>
+            <a href="/catalogue" class="btn btn-primary">Voir le catalogue</a>
+          </div>
+        </div>
+
+        <div class="card shadow mb-4">
+          <div class="card-body text-center">
+            <i class="bi bi-bookmark-check fs-1 text-success"></i>
+            <h5 class="mt-3">Mes réservations</h5>
+            <a href="/mes-demandes" class="btn btn-outline-primary">Voir mes réservations</a>
+          </div>
+        </div>
+
+        <div class="card shadow">
+          <div class="card-body text-center">
+            <i class="bi bi-clock-history fs-1 text-secondary"></i>
+            <h5 class="mt-3">Historique</h5>
+            <a href="/mes-demandes" class="btn btn-outline-secondary">Voir mon historique</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <footer>
+    <p class="mb-0">&copy; 2025 Bibliothèque – Tous droits réservés</p>
+  </footer>
+
+  <!-- JS Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Validation jours fériés sur dateRetourEffective -->
+  <script>
+    // Exemple liste jours fériés au format ISO (à adapter)
+    const joursFeries = [
+      "2025-07-13",
+      "2025-07-20",
+      "2025-07-27",
+      "2025-08-03",
+      "2025-08-10",
+      "2025-08-17",
+      "2025-07-26",
+      "2025-07-19"
+    ];
+
+    function estJourFerie(dateStr) {
+      return joursFeries.includes(dateStr);
+    }
+
+    document.querySelectorAll('form[action^="/adherent/rendre-livre/"]').forEach(form => {
+      form.addEventListener('submit', function(event) {
+        const inputDate = form.querySelector('input[name="dateRetourEffective"]');
+        const errorMsg = form.querySelector('.error-message');
+
+        errorMsg.style.display = 'none';
+
+        if (!inputDate.value) {
+          errorMsg.textContent = "Veuillez sélectionner une date de retour.";
+          errorMsg.style.display = 'block';
+          event.preventDefault();
+          return;
+        }
+
+        if (estJourFerie(inputDate.value)) {
+          errorMsg.textContent = "La date choisie est un jour férié, veuillez choisir un autre jour.";
+          errorMsg.style.display = 'block';
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
